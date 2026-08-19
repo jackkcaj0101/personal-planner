@@ -24,7 +24,7 @@ if not st.session_state["authenticated"]:
             st.rerun()
         else:
             st.error("Incorrect PIN. Please try again.")
-    st.stop()  # Stops the rest of the app from loading until unlocked
+    st.stop()
 
 # --- DATABASE SETUP ---
 GIST_ID = st.secrets["GIST_ID"]
@@ -47,6 +47,7 @@ def load_data():
         return {
             "monthly_expenses": {},
             "trips": [],
+            "trip_itineraries": {},
             "goals": {},
             "daily_logs": {}
         }
@@ -169,30 +170,111 @@ with tab1:
         st.info("No monthly expense records found yet.")
 
 # ==========================================
-# TAB 2: TRIP CALENDAR
+# TAB 2: TRIP CALENDAR & DAILY ITINERARY
 # ==========================================
 with tab2:
-    st.header("Travel Calendar")
+    st.header("Travel Calendar & Daily Planner")
+
+    # --- QUICK ACCESS SAVED TRIPS SECTION ---
+    st.subheader("🌍 Quick Access: Saved Trips")
+    trips_list = data.get("trips", [])
+
+    if trips_list:
+        cols = st.columns(len(trips_list) if len(trips_list) <= 3 else 3)
+        for idx, t in enumerate(trips_list):
+            col_idx = idx % 3
+            with cols[col_idx]:
+                st.markdown(f"**✈️ {t['title']}**")
+                st.caption(f"From: {t['start']} To: {t['end']}")
+    else:
+        st.info("No saved trips yet. Add your first trip below!")
+
+    st.divider()
+
     with st.form("add_trip_form"):
         st.subheader("Plan a New Trip")
         col_t1, col_t2, col_t3 = st.columns(3)
-        trip_name = col_t1.text_input("Destination", placeholder="e.g., Tenerife or Chongqing")
+        trip_name = col_t1.text_input("Country / Destination", placeholder="e.g., Turkey, Tenerife, Chongqing")
         start_date = col_t2.date_input("Start Date")
         end_date = col_t3.date_input("End Date")
 
-        if st.form_submit_button("Add Trip to Calendar"):
+        if st.form_submit_button("Add Trip"):
             new_trip = {"title": trip_name, "start": str(start_date), "end": str(end_date),
                         "backgroundColor": "#FF6C6C"}
             if "trips" not in data:
                 data["trips"] = []
             data["trips"].append(new_trip)
             if save_data(data):
-                st.success(f"{trip_name} added to database!")
+                st.success(f"{trip_name} added permanently!")
 
     st.divider()
+
+    # Render Calendar View
     calendar_options = {"headerToolbar": {"left": "today prev,next", "center": "title", "right": "dayGridMonth"},
                         "initialView": "dayGridMonth"}
     calendar(events=data.get("trips", []), options=calendar_options)
+
+    st.divider()
+    st.subheader("Trip Daily Itinerary (Morning & Evening Planner)")
+
+    trip_titles = [t["title"] for t in trips_list]
+    if trip_titles:
+        col_sel1, col_sel2 = st.columns([2, 1])
+        with col_sel1:
+            selected_trip_title = st.selectbox("Select Trip to Edit Plans", trip_titles)
+        with col_sel2:
+            st.write("")
+            st.write("")
+            if st.button("Delete Selected Trip"):
+                data["trips"] = [t for t in data["trips"] if t["title"] != selected_trip_title]
+                if "trip_itineraries" in data and selected_trip_title in data["trip_itineraries"]:
+                    del data["trip_itineraries"][selected_trip_title]
+                save_data(data)
+                st.success(f"Deleted {selected_trip_title}!")
+                st.rerun()
+
+        selected_trip = next((t for t in trips_list if t["title"] == selected_trip_title), None)
+        if selected_trip:
+            start_dt = datetime.strptime(selected_trip["start"], "%Y-%m-%d").date()
+            end_dt = datetime.strptime(selected_trip["end"], "%Y-%m-%d").date()
+
+            delta = (end_dt - start_dt).days
+            trip_dates = [start_dt + pd.Timedelta(days=i) for i in range(delta + 1)]
+
+            if "trip_itineraries" not in data:
+                data["trip_itineraries"] = {}
+
+            if selected_trip_title not in data["trip_itineraries"]:
+                data["trip_itineraries"][selected_trip_title] = {}
+
+            trip_plans = data["trip_itineraries"][selected_trip_title]
+
+            with st.form(f"itinerary_form_{selected_trip_title}"):
+                updated_plans = {}
+                for single_date in trip_dates:
+                    date_str = str(single_date)
+                    st.markdown(f"### 📅 {single_date.strftime('%A, %B %d, %Y')}")
+
+                    existing_day = trip_plans.get(date_str, {"morning": "", "evening": ""})
+                    col_m, col_e = st.columns(2)
+                    with col_m:
+                        morning_note = st.text_input(f"Morning Plan ({date_str})",
+                                                     value=existing_day.get("morning", ""),
+                                                     key=f"m_{selected_trip_title}_{date_str}")
+                    with col_e:
+                        evening_note = st.text_input(f"Evening Plan ({date_str})",
+                                                     value=existing_day.get("evening", ""),
+                                                     key=f"e_{selected_trip_title}_{date_str}")
+
+                    updated_plans[date_str] = {"morning": morning_note, "evening": evening_note}
+                    st.write("---")
+
+                if st.form_submit_button("Save Itinerary Plans"):
+                    data["trip_itineraries"][selected_trip_title] = updated_plans
+                    if save_data(data):
+                        st.success(f"Itinerary for {selected_trip_title} saved permanently!")
+    else:
+        st.info("Add a trip above to start planning your daily morning and evening itineraries.")
 
 # ==========================================
 # TAB 3: YEARLY FINANCIAL GOALS
