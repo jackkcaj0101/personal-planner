@@ -401,7 +401,7 @@ with tab5:
     
     col_bio_img, col_bio_txt = st.columns([1, 2])
     with col_bio_img:
-        st.image("IMG_4216.jpg", caption="Aravindhan Uvaraj", use_container_width=True)
+        st.image("aravindhan.jpg", caption="Aravindhan Uvaraj", use_container_width=True)
     with col_bio_txt:
         st.subheader("Aravindhan Uvaraj")
         st.write("""
@@ -417,14 +417,14 @@ with tab5:
         
         with col_f1:
             st.subheader("My Wife")
-            st.image("D189A0FE-9E3C-4332-A95A-9A766FB89FFB.jpg", caption="Partner & Companion", use_container_width=True)
+            st.image("wife.jpg", caption="Partner & Companion", use_container_width=True)
             st.write("""
             My wonderful travel partner and companion. Always ready for new adventures, exploring new cultures, and sharing great food around the world.
             """)
             
         with col_f2:
             st.subheader("Our Cat")
-            st.image("IMG_3396.jpg", caption="The Boss of the House", use_container_width=True)
+            st.image("cat.jpg", caption="The Boss of the House", use_container_width=True)
             st.write("""
             Our adorable feline friend who keeps the home lively, ensures everything is pet-safe, and supervises all my late-night coding and video editing sessions!
             """)
