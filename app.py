@@ -401,8 +401,7 @@ with tab5:
     
     col_bio_img, col_bio_txt = st.columns([1, 2])
     with col_bio_img:
-        # Replace with your actual photo URL or local file path if desired
-        st.image("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400", caption="Aravindhan Uvaraj", use_container_width=True)
+        st.image("IMG_4216.jpg", caption="Aravindhan Uvaraj", use_container_width=True)
     with col_bio_txt:
         st.subheader("Aravindhan Uvaraj")
         st.write("""
@@ -413,20 +412,19 @@ with tab5:
 
     st.divider()
 
-    # Expandable section with a plus symbol for family & cat
     with st.expander("➕ Family & Pet Details"):
         col_f1, col_f2 = st.columns(2)
         
         with col_f1:
             st.subheader("My Wife")
-            st.image("https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300", caption="Partner & Companion", use_container_width=True)
+            st.image("D189A0FE-9E3C-4332-A95A-9A766FB89FFB.jpg", caption="Partner & Companion", use_container_width=True)
             st.write("""
             My wonderful travel partner and companion. Always ready for new adventures, exploring new cultures, and sharing great food around the world.
             """)
             
         with col_f2:
             st.subheader("Our Cat")
-            st.image("https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=300", caption="The Boss of the House", use_container_width=True)
+            st.image("IMG_3396.jpg", caption="The Boss of the House", use_container_width=True)
             st.write("""
             Our adorable feline friend who keeps the home lively, ensures everything is pet-safe, and supervises all my late-night coding and video editing sessions!
             """)
