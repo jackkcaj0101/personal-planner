@@ -40,7 +40,8 @@ if not st.session_state["authenticated"]:
     with col_l2:
         st.markdown("### 🔒 Locked")
         st.write("Welcome Aravindhan Uvaraj")
-        pin = st.text_input("Enter PIN", type="password", max_chars=4, placeholder="Enter 1320")
+        # Blank input field without visible code hint
+        pin = st.text_input("Enter PIN", type="password", max_chars=4)
         if st.button("Unlock Planner", use_container_width=True):
             if pin == "1320":
                 st.session_state["authenticated"] = True
@@ -85,11 +86,30 @@ def save_data(data_dict):
     response = requests.patch(GIST_URL, headers=HEADERS, json=payload)
     return response.status_code == 200
 
-# --- MAIN APP HEADER WITH TOP-RIGHT LOCK BUTTON ---
-col_head1, col_head2 = st.columns([5, 1])
+# --- MAIN APP HEADER WITH TOP-LEFT ABOUT POPOVER & TOP-RIGHT LOCK ---
+col_about, col_head1, col_head2 = st.columns([1, 4, 1])
+
+with col_about:
+    st.write("")
+    with st.popover("ℹ️ About"):
+        st.image("aravindhan.jpg.jpg", caption="Aravindhan Uvaraj", use_container_width=True)
+        st.subheader("Aravindhan Uvaraj")
+        st.write("""
+        Hello! I'm an engineer passionate about technology, semiconductor manufacturing, videography, and building custom digital tools from scratch.
+        """)
+        with st.expander("➕ Family & Pet Details"):
+            st.subheader("My Wife")
+            st.image("wife.jpg.JPG", caption="Partner & Companion", use_container_width=True)
+            st.write("My wonderful travel partner and companion. Always ready for new adventures and exploring new cultures.")
+            
+            st.subheader("Our Cat")
+            st.image("cat.jpg.jpeg", caption="The Boss of the House", use_container_width=True)
+            st.write("Our adorable feline friend who keeps the home lively and supervises my coding sessions!")
+
 with col_head1:
     st.title("Personal Planner")
     st.caption("Welcome back, Aravindhan Uvaraj")
+
 with col_head2:
     st.write("") 
     if st.button("🔒 Lock"):
@@ -98,7 +118,7 @@ with col_head2:
 
 data = load_data()
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Monthly Budget Tracker", "Trip Calendar", "Financial Goals", "Full-Year Grid Tracker", "About Me"])
+tab1, tab2, tab3, tab4 = st.tabs(["Monthly Budget Tracker", "Trip Calendar", "Financial Goals", "Full-Year Grid Tracker"])
 
 # ==========================================
 # TAB 1: MONTHLY BUDGET TRACKER
@@ -392,39 +412,3 @@ with tab4:
         with col_m3:
             render_month_grid(current_year, months[i+2][0], months[i+2][1], daily_logs)
         st.write("---")
-
-# ==========================================
-# TAB 5: ABOUT ME
-# ==========================================
-with tab5:
-    st.header("About Me")
-    
-    col_bio_img, col_bio_txt = st.columns([1, 2])
-    with col_bio_img:
-        st.image("aravindhan.jpg.jpg", caption="Aravindhan Uvaraj", use_container_width=True)
-    with col_bio_txt:
-        st.subheader("Aravindhan Uvaraj")
-        st.write("""
-        Hello! I'm an engineer passionate about technology, semiconductor manufacturing, videography, and building custom digital tools from scratch. 
-        Whether it's streamlining automated workflows in Python, capturing moments with mirrorless cameras, or planning future travels across the globe, 
-        I love creating efficient, elegant systems to organize life and projects.
-        """)
-
-    st.divider()
-
-    with st.expander("➕ Family & Pet Details"):
-        col_f1, col_f2 = st.columns(2)
-        
-        with col_f1:
-            st.subheader("My Wife")
-            st.image("wife.jpg.JPG", caption="Partner & Companion", use_container_width=True)
-            st.write("""
-            My wonderful travel partner and companion. Always ready for new adventures, exploring new cultures, and sharing great food around the world.
-            """)
-            
-        with col_f2:
-            st.subheader("Our Cat")
-            st.image("cat.jpg.jpeg", caption="The Boss of the House", use_container_width=True)
-            st.write("""
-            Our adorable feline friend who keeps the home lively, ensures everything is pet-safe, and supervises all my late-night coding and video editing sessions!
-            """)
